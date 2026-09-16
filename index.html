@@ -92,6 +92,25 @@
     font-size: 0.85rem;
   }
 </style>
+
+<!-- Enlarge the Cognigy webchat header avatar. These class names
+     (webchat-header-logo / webchat-header-bar) are internal to Cognigy's
+     webchat.js bundle, not a documented setting -- if a future bundle
+     update renames them, this simply stops matching and the header
+     quietly reverts to its default small icon (no breakage, just no
+     enlargement). Tested at 48px against the default 900px-wide chat
+     panel: comfortably fits without crowding the title or window
+     controls. -->
+<style>
+  .webchat-header-logo {
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50%;
+  }
+  .webchat-header-bar {
+    min-height: 64px !important;
+  }
+</style>
 </head>
 <body>
 
