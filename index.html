@@ -134,7 +134,62 @@
 <!-- Cognigy Webchat embed -->
 <script src="https://github.com/Cognigy/Webchat/releases/latest/download/webchat.js"></script>
 <script>
-  window.initWebchat("https://cognigy-endpoint-na1.nicecxone.com/c2ece3a0b9e433fa6d88e93189bf828f60e44defc77f003132964d2b1cf12b67");
+  (function () {
+    var ENDPOINT_URL = "https://cognigy-endpoint-na1.nicecxone.com/c2ece3a0b9e433fa6d88e93189bf828f60e44defc77f003132964d2b1cf12b67";
+
+    // Ask the browser directly for location (real permission prompt, visitor
+    // sees it and can decline) instead of relying on Cognigy's silent
+    // IP-based geolocation. Reverse-geocode with BigDataCloud's free,
+    // keyless client API to turn lat/lon into a city name.
+    function startWebchat(browserGeo) {
+      var startBehavior = {
+        startBehavior: "button",
+        getStartedButtonText: "Start chat",
+        getStartedText: "Get Started",
+        getStartedPayload: "Hi",
+        getStartedData: browserGeo ? { browserGeo: browserGeo } : {}
+      };
+      window.initWebchat(ENDPOINT_URL, { settings: { startBehavior: startBehavior } });
+    }
+
+    function reverseGeocode(lat, lon, done) {
+      fetch("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + lat + "&longitude=" + lon + "&localityLanguage=en")
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          var city = data && (data.city || data.locality);
+          if (!city) { done(null); return; }
+          done({
+            city: city,
+            region: data.principalSubdivision || "",
+            country: data.countryName || ""
+          });
+        })
+        .catch(function () { done(null); });
+    }
+
+    var settled = false;
+    function finish(browserGeo) {
+      if (settled) return;
+      settled = true;
+      startWebchat(browserGeo);
+    }
+
+    // Give the browser up to 6s to grant location + resolve a city, then
+    // start the widget regardless (with or without location data).
+    setTimeout(function () { finish(null); }, 6000);
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        function (pos) {
+          reverseGeocode(pos.coords.latitude, pos.coords.longitude, finish);
+        },
+        function () { finish(null); }, // denied or unavailable
+        { timeout: 5000 }
+      );
+    } else {
+      finish(null);
+    }
+  })();
 </script>
 
 </body>
