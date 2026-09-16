@@ -161,7 +161,9 @@
           done({
             city: city,
             region: data.principalSubdivision || "",
-            country: data.countryName || ""
+            country: data.countryName || "",
+            lat: lat,
+            lon: lon
           });
         })
         .catch(function () { done(null); });
