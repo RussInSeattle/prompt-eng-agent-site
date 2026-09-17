@@ -110,6 +110,18 @@
   .webchat-header-bar {
     min-height: 64px !important;
   }
+  /* Shrink the chat window's overall height. The "modern" style preset
+     hardcodes it at 600px (not a plugin setting -- there is no
+     chatWindowHeight field), which leaves a lot of empty space below a
+     short conversation before it fills up. 500px keeps the header/input
+     bars comfortably clear while noticeably tightening that gap. Same
+     fragility note as above: this targets an internal, undocumented
+     class name and degrades gracefully (reverts to the default 600px)
+     if a future bundle update renames it. */
+  .webchat {
+    height: 500px !important;
+    max-height: 500px !important;
+  }
 </style>
 </head>
 <body>
