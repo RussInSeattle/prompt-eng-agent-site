@@ -195,11 +195,13 @@
       startWebchat(browserGeo);
     }
 
-    // Give the browser up to 12s to grant location + resolve a city, then
-    // start the widget regardless (with or without location data). Desktop
-    // PCs without a GPS chip resolve location via slower Wi-Fi/IP-based
-    // positioning, which can take longer than the old 5-6s budget allowed.
-    setTimeout(function () { finish(null); }, 12000);
+    // The ENTIRE widget (including the chat icon itself) waits on this --
+    // initWebchat() only runs once finish() fires -- so this budget is a
+    // visible "how long before the icon even shows up" delay, not just a
+    // location-accuracy tradeoff. 12s (the previous value) was too slow;
+    // the original 5-6s was too tight for desktop Wi-Fi/IP-based positioning.
+    // Split the difference.
+    setTimeout(function () { finish(null); }, 7000);
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -207,7 +209,7 @@
           reverseGeocode(pos.coords.latitude, pos.coords.longitude, finish);
         },
         function () { finish(null); }, // denied or unavailable
-        { timeout: 10000, maximumAge: 60000 }
+        { timeout: 6000, maximumAge: 60000 }
       );
     } else {
       finish(null);
